@@ -180,6 +180,10 @@ export function registerIpc(): void {
 
   ipcMain.handle('balance:get', () => balance.getBalance())
 
+  // Manual launcher self-update check (the same check also runs at startup and
+  // broadcasts `launcher-update`; this lets the user re-query on demand).
+  ipcMain.handle('launcher:checkUpdate', () => runtime.checkLauncherUpdate())
+
   // Plugin market (GitHub search, unauthenticated).
   ipcMain.handle('market:search', (_e, sourceId: string, page: number, query?: string, categoryId?: string, force?: boolean) =>
     market.searchMarket((sourceId as MarketSourceId) || 'github', page, query, categoryId, Boolean(force)))

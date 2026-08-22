@@ -182,6 +182,14 @@ export interface TaskEvent {
   phase?: string
 }
 
+/** Launcher self-update check result: latest GitHub release tag vs current app version. */
+export interface LauncherUpdateInfo {
+  latest: string | null
+  current: string
+  url: string | null
+  update: boolean
+}
+
 export type LauncherEvent =
   | { type: 'state'; state: HarnessState }
   | { type: 'log'; stream: 'stdout' | 'stderr'; line: string; at: number; instanceId: string }
@@ -189,7 +197,7 @@ export type LauncherEvent =
   | { type: 'instances'; instances: DshInstance[]; activeInstanceId: string }
   | { type: 'popup'; instanceId: string; open: boolean }
   | { type: 'dsh-update'; latest: string | null; current: string | null }
-  | { type: 'launcher-update'; latest: string | null; current: string; url: string | null; update: boolean }
+  | ({ type: 'launcher-update' } & LauncherUpdateInfo)
 
 export interface BootstrapState {
   /** state per instance id. */
@@ -415,6 +423,8 @@ export interface DshLauncherApi {
   fetchMarketReadme(owner: string, repo: string): Promise<MarketReadme>
   /** Show a confirm dialog for an external link, then open it in the system browser if confirmed. */
   confirmOpenExternal(url: string): Promise<boolean>
+  /** Check the launcher's own GitHub repo for a newer release (manual trigger; also runs at startup). */
+  checkLauncherUpdate(): Promise<LauncherUpdateInfo>
   /** Show/hide the embedded DSH view for an instance; reload when the harness (re)became ready. */
   setDshActive(instanceId: string, active: boolean, reload?: boolean): void
   /** Sync the sidebar width so the DSH view sits flush against it. */

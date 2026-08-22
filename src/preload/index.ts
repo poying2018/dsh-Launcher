@@ -35,6 +35,7 @@ const api: DshLauncherApi = {
     ipcRenderer.invoke('market:search', sourceId, page, query, categoryId, force),
   fetchMarketReadme: (owner, repo) => ipcRenderer.invoke('market:readme', owner, repo),
   confirmOpenExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
+  checkLauncherUpdate: () => ipcRenderer.invoke('launcher:checkUpdate'),
   setDshActive: (instanceId, active, reload) => ipcRenderer.send('dsh:set-active', instanceId, active, reload),
   setDshSidebarWidth: (width) => ipcRenderer.send('dsh:set-sidebar-width', width),
   setOrbVisible: (visible) => ipcRenderer.send('orb:set-visible', visible),

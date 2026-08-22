@@ -4,7 +4,7 @@ import { api, type LauncherConfig } from '../lib/api'
 import { useHarness } from '../hooks/useHarness'
 import { useI18n } from '../i18n'
 import { MARKET_SOURCES } from '../../../shared/plugin-sources'
-import type { MarketSourceId } from '../../../shared/types'
+import type { LauncherUpdateInfo, MarketSourceId } from '../../../shared/types'
 import { TaskConsole } from '../components/TaskConsole'
 import { Toggle } from '../components/Toggle'
 import { DownloadIcon, RefreshIcon, PowerIcon } from '../lib/icons'
@@ -35,6 +35,8 @@ export function Settings(): JSX.Element {
   const [dlDone, setDlDone] = useState(false)
   const [rtBusy, setRtBusy] = useState<'install' | 'update' | null>(null)
   const [rtDone, setRtDone] = useState(false)
+  const [launcherUpd, setLauncherUpd] = useState<LauncherUpdateInfo | null>(null)
+  const [launcherChecking, setLauncherChecking] = useState(false)
 
   useEffect(() => {
     if (config) {
@@ -112,6 +114,16 @@ export function Settings(): JSX.Element {
   }
 
   const isBundled = form.installMode === 'bundled'
+
+  const doCheckLauncherUpdate = async (): Promise<void> => {
+    setLauncherChecking(true)
+    try {
+      setLauncherUpd(await api.checkLauncherUpdate())
+    } finally {
+      setLauncherChecking(false)
+    }
+  }
+
   const downloadTask = tasks['download:harness']
   const repairTask = tasks['repair']
   const buildTask = tasks['build']
@@ -387,6 +399,34 @@ export function Settings(): JSX.Element {
       </section>
       )}
 
+      {/* launcher self-update check */}
+      <div className="panel p-5 space-y-3">
+        <h3 className="section-title">{t('settings.aboutTitle')}</h3>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[12.5px]" style={{ color: 'var(--muted)' }}>
+            {t('settings.version')} <span className="mono">{launcherUpd?.current ?? '—'}</span>
+          </span>
+          <button className="btn btn-ghost btn-sm shrink-0" disabled={launcherChecking} onClick={() => void doCheckLauncherUpdate()}>
+            <RefreshIcon /> {launcherChecking ? t('settings.checkingLauncherUpdate') : t('settings.checkLauncherUpdate')}
+          </button>
+        </div>
+        {launcherUpd &&
+          (launcherUpd.update && launcherUpd.url ? (
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[12.5px]" style={{ color: 'var(--warn)' }}>
+                {t('settings.launcherUpdateAvailable', { latest: launcherUpd.latest ?? '' })}
+              </p>
+              <a className="btn btn-primary btn-sm shrink-0" href={launcherUpd.url} target="_blank" rel="noreferrer">
+                {t('settings.launcherOpenDownload')}
+              </a>
+            </div>
+          ) : (
+            <p className="text-[12.5px]" style={{ color: 'var(--ok)' }}>
+              {t('settings.launcherUpToDate', { current: launcherUpd.current })}
+            </p>
+          ))}
+      </div>
+
       {/* app icon — above the author attribution */}
       <div className="flex justify-center pt-2 select-none">
         <img
@@ -403,7 +443,7 @@ export function Settings(): JSX.Element {
         className="flex items-center justify-center gap-2 pt-2 select-none text-[10.5px]"
         style={{ color: 'var(--muted)', opacity: 0.55 }}
       >
-        <span>by MarcoG-h</span>
+        <span>by poying2018</span>
         <img src={rueIcon} alt="rue" title="rue" className="h-4 w-4 rounded-full object-cover" draggable={false} />
         <img src={proto1Icon} alt="proto1" title="proto1" className="h-4 w-4 rounded-full object-cover" draggable={false} />
         <img src={cedricIcon} alt="credit" title="credit" className="h-4 w-4 rounded-full object-cover" draggable={false} />
