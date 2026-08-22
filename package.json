@@ -15,7 +15,7 @@
     "dist": "electron-vite build && electron-builder --win"
   },
   "build": {
-    "appId": "com.marcog.dsh-launcher",
+    "appId": "com.poying2018.dsh-launcher",
     "productName": "DSH Launcher",
     "directories": {
       "output": "release"
