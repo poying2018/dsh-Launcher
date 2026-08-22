@@ -3,7 +3,7 @@
   "version": "3.0.4",
   "description": "DeepSeek Harness desktop launcher — start/restart, live logs, plugin management (cc-switch style)",
   "main": "./out/main/index.js",
-  "author": "MarcoG-h",
+  "author": "poying2018",
   "license": "MIT",
   "private": true,
   "type": "module",

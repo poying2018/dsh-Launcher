@@ -128,7 +128,7 @@ export async function checkLauncherUpdate(timeoutMs = 8000): Promise<LauncherUpd
   const current = app.getVersion()
   const remote = await new Promise<{ tag: string | null; url: string | null }>((resolve) => {
     const req = httpsGet(
-      'https://api.github.com/repos/MarcoG-h/DSH-Launcher/releases/latest',
+      'https://api.github.com/repos/poying2018/dsh-Launcher/releases/latest',
       { timeout: timeoutMs, headers: { 'User-Agent': 'DSH-Launcher' } },
       (res) => {
         let body = ''

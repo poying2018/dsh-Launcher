@@ -1,15 +1,15 @@
 <div align="center">
 
-<p><a href="https://github.com/MarcoG-h/DSH-Launcher/blob/main/README.md">中文</a> | <a href="#dsh-launcher">English</a></p>
+<p><a href="https://github.com/poying2018/dsh-Launcher/blob/main/README.md">中文</a> | <a href="#dsh-launcher">English</a></p>
 
 <h1>DSH Launcher V3 — 鲸罗棋布</h1>
 
 <p>
-<a href="https://github.com/MarcoG-h/DSH-Launcher"><img src="https://img.shields.io/github/stars/MarcoG-h/DSH-Launcher?style=flat&label=%E2%AD%90&color=08C" alt="GitHub stars"></a>
-<a href="https://github.com/MarcoG-h/DSH-Launcher/releases"><img src="https://img.shields.io/badge/Windows-10%2F11-4493F8?style=flat" alt="Windows"></a>
-<a href="https://github.com/MarcoG-h/DSH-Launcher/releases"><img src="https://img.shields.io/badge/Desktop-App-47848F?style=flat" alt="Desktop App"></a>
-<a href="https://github.com/MarcoG-h/DSH-Launcher/releases/tag/v3.0.4"><img src="https://img.shields.io/badge/v3.0.4-Release-2EA44F?style=flat" alt="v3.0.4"></a>
-<a href="https://github.com/MarcoG-h/DSH-Launcher/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-2EA44F?style=flat" alt="MIT License"></a>
+<a href="https://github.com/poying2018/dsh-Launcher"><img src="https://img.shields.io/github/stars/poying2018/dsh-Launcher?style=flat&label=%E2%AD%90&color=08C" alt="GitHub stars"></a>
+<a href="https://github.com/poying2018/dsh-Launcher/releases"><img src="https://img.shields.io/badge/Windows-10%2F11-4493F8?style=flat" alt="Windows"></a>
+<a href="https://github.com/poying2018/dsh-Launcher/releases"><img src="https://img.shields.io/badge/Desktop-App-47848F?style=flat" alt="Desktop App"></a>
+<a href="https://github.com/poying2018/dsh-Launcher/releases/tag/v3.0.4"><img src="https://img.shields.io/badge/v3.0.4-Release-2EA44F?style=flat" alt="v3.0.4"></a>
+<a href="https://github.com/poying2018/dsh-Launcher/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-2EA44F?style=flat" alt="MIT License"></a>
 </p>
 
 <p>No Node.js installation or source code needed — one-click deployment of a portable runtime;
@@ -57,10 +57,10 @@ the flexibility of the plugin ecosystem becomes something every user can reach.<
 
 | File | Description | Size |
 | --- | --- | --- |
-| [Installer exe](https://github.com/MarcoG-h/DSH-Launcher/releases/download/v3.0.4/DSH.Launcher.Setup.3.0.4.exe) | NSIS installer; creates desktop / Start menu shortcuts automatically | ~100 MB |
-| [Simple exe](https://github.com/MarcoG-h/DSH-Launcher/releases/download/v2.0.3/DSH.Launcher.Setup.2.0.3.exe) | Minimal version without multi-instance, for users running a single DSH | ~100 MB |
+| [Installer exe](https://github.com/poying2018/dsh-Launcher/releases/download/v3.0.4/DSH.Launcher.Setup.3.0.4.exe) | NSIS installer; creates desktop / Start menu shortcuts automatically | ~100 MB |
+| [Simple exe](https://github.com/poying2018/dsh-Launcher/releases/download/v2.0.3/DSH.Launcher.Setup.2.0.3.exe) | Minimal version without multi-instance, for users running a single DSH | ~100 MB |
 
-More versions on the [Releases page](https://github.com/MarcoG-h/DSH-Launcher/releases).
+More versions on the [Releases page](https://github.com/poying2018/dsh-Launcher/releases).
 
 📺 Quick-start video tutorial: [BiliBili](https://www.bilibili.com/video/BV1BMbR64EoQ/?vd_source=ed1422074bd9beff1e11e3fba3c0fff8)
 
@@ -179,7 +179,7 @@ pnpm dist           # electron-vite build + electron-builder --win → release/
 
 ## Contributing
 
-- [@MarcoG-h](https://github.com/MarcoG-h) — project initiator & maintainer
+- [@poying2018](https://github.com/poying2018) — project maintainer
 - [@baihejiangnan](https://github.com/baihejiangnan) — recommended bundle contributor & maintainer
 
 ## License
