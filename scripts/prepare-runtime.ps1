@@ -1,13 +1,13 @@
 # Pre-bundle the portable runtime (Node + pnpm + @deepseek-ai/dsh) into
-# resources/runtime. electron-builder ships it via extraResources, so a fresh
-# install can boot dsh straight from the install directory with zero downloads
-# (true offline deployment).
+# runtime-bundle. electron-builder ships it via extraResources (to: "runtime"),
+# so a fresh install can boot dsh straight from the install directory with zero
+# downloads (true offline deployment).
 #
 # Layout matches what runtime.ts "Online Install" (installRuntime) produces:
-#   resources/runtime/node   (node.exe + npm/pnpm)
-#   resources/runtime/dsh    (full dsh package closure)
+#   runtime-bundle/node   (node.exe + npm/pnpm)
+#   runtime-bundle/dsh    (full dsh package closure)
 # At app runtime, ~/.dsh-runtime (runtimeRoot) wins, the installer-bundled copy
-# is the fallback.
+# (resources/runtime, i.e. process.resourcesPath/runtime) is the fallback.
 #
 # Idempotent: steps are skipped when their output already exists. The build
 # machine needs access to npmmirror. Note: keep this file ASCII-only -- Windows
@@ -22,7 +22,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repo = Split-Path $PSScriptRoot -Parent
-$out = Join-Path $repo "resources\runtime"
+$out = Join-Path $repo "runtime-bundle"
 $node = Join-Path $out "node"
 $dsh = Join-Path $out "dsh"
 $REG = "https://registry.npmmirror.com"
@@ -65,6 +65,14 @@ if (-not (Test-Path $pkg)) {
 }
 $bin = Join-Path $dsh "node_modules\@deepseek-ai\dsh\lib\bin.js"
 if (-not (Test-Path $bin)) {
+    # Install in place with a flat layout. The repo root has its own
+    # pnpm-workspace.yaml; giving $dsh its own workspace file makes pnpm treat
+    # it as the workspace root (the nearest one wins when walking up), and
+    # nodeLinker: hoisted yields a flat node_modules with plain directories --
+    # no .pnpm symlinks, which electron-builder's extraResources copy cannot
+    # handle. (A plain .npmrc with node-linker=hoisted is NOT enough: the repo
+    # workspace still overrides it.)
+    Set-Content -Path (Join-Path $dsh "pnpm-workspace.yaml") -Value "packages:`n  - .`nnodeLinker: hoisted`n" -Encoding ASCII
     Push-Location $dsh
     try {
         & $pnpm add "@deepseek-ai/dsh@latest" --registry=$REG --config.strictDepBuilds=false

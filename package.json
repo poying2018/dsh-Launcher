@@ -27,6 +27,10 @@
       {
         "from": "resources",
         "to": "resources"
+      },
+      {
+        "from": "runtime-bundle",
+        "to": "runtime"
       }
     ],
     "win": {

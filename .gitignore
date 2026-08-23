@@ -5,4 +5,4 @@ dist/
 .DS_Store
 release/
 # 构建期预集成的内置运行环境(scripts/prepare-runtime.ps1 生成,不提交)
-resources/runtime/
+runtime-bundle/
