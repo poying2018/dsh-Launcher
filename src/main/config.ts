@@ -6,13 +6,36 @@ import type { DshInstance, LauncherConfig } from '../shared/types'
 
 const home = homedir()
 
+/**
+ * 打包版的数据根目录 = 安装目录下的 `data` 子目录(NSIS 安装的 exe 所在目录)。
+ * 配置、运行环境(runtimeRoot)、DSH_HOME、插件库、Chromium 缓存全部随安装位置走,
+ * 默认不占用系统盘。开发模式保持基于用户主目录的现状,避免污染 electron 二进制
+ * 所在目录。
+ */
+function dataRoot(): string {
+  if (!app.isPackaged) return home
+  return join(dirname(process.execPath), 'data')
+}
+
+// 打包版把整个 userData(launcher-config.json、Chromium/GPU 缓存、快捷键哨兵等)
+// 重定向到安装目录。模块加载时即执行(早于 whenReady,Chromium 的缓存目录据此定位)。
+if (app.isPackaged) {
+  try {
+    app.setPath('userData', join(dataRoot(), 'userdata'))
+  } catch {
+    /* 安装目录只读等极端情况:回退到系统默认 userData */
+  }
+}
+
 function firstExisting(candidates: string[]): string {
   return candidates.find(c => c && existsSync(resolve(c))) ?? candidates.find(c => c) ?? ''
 }
 
 function defaults(): LauncherConfig {
-  const harnessRepo = firstExisting([process.env.DSH_REPO ?? '', join(home, 'deepseek-harness')])
-  const runtimeRoot = join(home, '.dsh-runtime')
+  const root = dataRoot()
+  const pkg = app.isPackaged
+  const harnessRepo = firstExisting([process.env.DSH_REPO ?? '', join(root, pkg ? 'harness' : 'deepseek-harness')])
+  const runtimeRoot = join(root, pkg ? 'runtime' : '.dsh-runtime')
   const systemLang = (app.getLocale() ?? 'zh').toLowerCase().startsWith('zh') ? 'zh' : 'en'
   return {
     // A checked-out repo implies we're on the developer machine ⇒ source mode.
@@ -23,8 +46,8 @@ function defaults(): LauncherConfig {
     dshVersion: '0.1.0-rc.6',
     harnessRepo,
     harnessRepoUrl: 'https://github.com/deepseek-ai/deepseek-harness.git',
-    dshHome: firstExisting([process.env.DSH_HOME ?? '', join(home, '.dsh')]),
-    pluginDir: firstExisting([join(home, 'DSH-Plugin')]),
+    dshHome: firstExisting([process.env.DSH_HOME ?? '', join(root, pkg ? 'dsh' : '.dsh')]),
+    pluginDir: join(root, pkg ? 'plugins' : 'DSH-Plugin'),
     profile: 'web',
     port: 3080,
     nodePath: 'node',
