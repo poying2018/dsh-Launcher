@@ -211,19 +211,22 @@ function launchPlan(cfg: LauncherConfig, inst: DshInstance): LaunchPlan {
   // default instance too. A bare positional would be handed to the booted app
   // and the CLI would error with "--profile <name> is required"; instance
   // profiles are auto-named (`web-2`, …), so the flag is required everywhere.
-  const inner = [...cfg.launchArgs, '--profile', inst.profile || 'web', '--port', String(inst.port)]
-  // --no-open:新版 dsh(0.1.0-rc.7+,含 0.1.1-*)启动 web 后默认会用系统浏览器打开
-  // 自身地址,launcher 已有内嵌视图,必须禁用。该参数只存在于**内置(npm 包)**dsh:
-  // 源码版本地 harness 不含它(传了报 unknown option,且本地 harness 不自动开浏览器)。
-  // 所以仅 bundled 模式按版本传。
-  if (cfg.installMode === 'bundled' && dshSupportsNoOpen(dshVersionOf(cfg))) inner.push('--no-open')
   // 实例的 DSH_HOME:独立 home(inst.dshHome)或共享 cfg.dshHome。显式钉住 env,
   // 防系统级 $DSH_HOME 环境变量漂移(共享实例此前未注入,行为是隐式继承)。
   const home = instanceDshHome(inst)
   if (cfg.installMode === 'bundled') {
     const node = resolveBundledNode()
     const bin = resolveBundledDshBin()
-    if (!node || !bin) throw new Error(t('内置运行环境未安装 — 请到「设置 → 运行环境」点击「一键安装运行环境」。', 'Built-in runtime not installed — go to Settings → Runtime and click "Install runtime".'))
+    if (!node || !bin) throw new Error(t('内置运行环境未安装 — 请到「设置 → 运行环境」点击「在线安装」或确认安装包完整。', 'Built-in runtime not installed — go to Settings → Runtime and click "Online install", or verify the installer is intact.'))
+    // --no-open:新版 dsh(0.1.0-rc.7+,含 0.1.1-*)启动 web 后默认会用系统浏览器打开
+    // 自身地址,launcher 已有内嵌视图,必须禁用。该参数只存在于**内置(npm 包)**dsh:
+    // 源码版本地 harness 不含它(传了报 unknown option,且本地 harness 不自动开浏览器)。
+    // 所以仅 bundled 模式按版本传。
+    // 入口以实际解析到的 dsh bin 为准(在线安装后是 runtimeRoot 副本,全新离线安装
+    // 直接用安装包内置那份),不依赖 config.launchArgs —— 那是源码模式的配置,全新
+    // 离线安装尚未跑过安装向导时仍是源码默认值,直接沿用会启动错误的脚本。
+    const inner = [bin, '--profile', inst.profile || 'web', '--port', String(inst.port)]
+    if (dshSupportsNoOpen(dshVersionOf(cfg))) inner.push('--no-open')
     return {
       cmd: node,
       args: inner,
@@ -231,6 +234,7 @@ function launchPlan(cfg: LauncherConfig, inst: DshInstance): LaunchPlan {
       envPatch: { ...bundledEnv(), DSH_HOME: home }
     }
   }
+  const inner = [...cfg.launchArgs, '--profile', inst.profile || 'web', '--port', String(inst.port)]
   return {
     cmd: cfg.nodePath,
     args: resolveScriptArgs(inner, cfg.harnessRepo),

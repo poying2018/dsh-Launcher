@@ -7,7 +7,7 @@ import { net } from 'electron'
 import { getConfig, setConfig } from './config'
 import { addInstance, getActiveInstance, instanceDshHome } from './instances'
 import { t } from './i18n'
-import { bundledEnv, downloadFile, extractZip, progressLine, resolveBundledNode } from './runtime'
+import { bundledEnv, downloadFile, extractZip, progressLine, resolveBundledDshBin, resolveBundledNode } from './runtime'
 import { runAsync, taskDone, taskLine, taskProgress } from './task'
 import { bundleTaskLabel, RECOMMENDED_BUNDLES } from '../shared/bundles'
 import { parseGitHubUrl } from '../shared/github'
@@ -176,10 +176,13 @@ function pnpmCmd(args: string[], cwd: string, label: string): Promise<CmdResult>
 function dshPluginCmd(home: string, profile: string, extra: string[]): { cmd: string; args: string[]; cwd: string; envPatch?: NodeJS.ProcessEnv } {
   const cfg = getConfig()
   if (cfg.installMode === 'bundled') {
-    // Run the bundled CLI; PATH is prefixed so its internal pnpm resolves to the portable copy.
+    // Run the bundled CLI; PATH is prefixed so its internal pnpm resolves to the
+    // portable copy. 入口用实际解析到的 dsh bin(在线安装后是 runtimeRoot 副本,
+    // 全新离线安装直接用安装包内置那份)——和 launchPlan 保持一致。
+    const bin = resolveBundledDshBin() ?? cfg.launchArgs[0]
     return {
       cmd: resolveBundledNode() ?? cfg.nodePath,
-      args: [...cfg.launchArgs, 'plugin', '--profile', profile, ...extra],
+      args: [bin, 'plugin', '--profile', profile, ...extra],
       cwd: cfg.runtimeRoot,
       envPatch: { ...bundledEnv(), DSH_HOME: home }
     }

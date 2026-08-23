@@ -41,27 +41,60 @@ export function dshBin(): string {
   return join(dshInstallDir(), 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 }
 
+// --- installer-bundled runtime (offline) ---
+//
+// The installer ships a ready-made portable runtime (Node + pnpm + dsh) under
+// `<install>/resources/runtime/`, produced at build time by
+// `scripts/prepare-runtime.ps1`. A freshly-installed app can boot dsh straight
+// from that copy — zero downloads, no deploy step. An explicitly installed /
+// updated runtime (在线安装) lives in runtimeRoot and wins over the bundled copy.
+
+function appRuntimeDir(): string {
+  return join(process.resourcesPath, 'runtime')
+}
+
+function appNodeDir(): string {
+  return join(appRuntimeDir(), 'node')
+}
+
+function appNodeExe(): string | null {
+  const p = join(appNodeDir(), 'node.exe')
+  return existsSync(p) ? p : null
+}
+
+function appDshDir(): string {
+  return join(appRuntimeDir(), 'dsh')
+}
+
+function appDshBin(): string | null {
+  const p = join(appDshDir(), 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+  return existsSync(p) ? p : null
+}
+
 export function resolveBundledNode(): string | null {
-  return existsSync(nodeExe()) ? nodeExe() : null
+  return existsSync(nodeExe()) ? nodeExe() : appNodeExe()
 }
 
 export function resolveBundledDshBin(): string | null {
-  return existsSync(dshBin()) ? dshBin() : null
+  return existsSync(dshBin()) ? dshBin() : appDshBin()
 }
 
 export function runtimeInstalled(): boolean {
   return resolveBundledNode() !== null && resolveBundledDshBin() !== null
 }
 
-/** 当前内置 @deepseek-ai/dsh 的版本;未安装内置运行环境时返回 null。 */
+/** 当前生效的内置 @deepseek-ai/dsh 版本(runtimeRoot 显式安装优先,安装包内置兜底);都缺失时返回 null。 */
 export function currentDshVersion(): string | null {
-  try {
-    const p = join(dshInstallDir(), 'node_modules', '@deepseek-ai', 'dsh', 'package.json')
-    if (!existsSync(p)) return null
-    return String((JSON.parse(readFileSync(p, 'utf8')) as { version?: unknown }).version ?? '')
-  } catch {
-    return null
+  for (const dir of [dshInstallDir(), appDshDir()]) {
+    try {
+      const p = join(dir, 'node_modules', '@deepseek-ai', 'dsh', 'package.json')
+      if (!existsSync(p)) continue
+      return String((JSON.parse(readFileSync(p, 'utf8')) as { version?: unknown }).version ?? '')
+    } catch {
+      /* try the next candidate */
+    }
   }
+  return null
 }
 
 /** 查询 registry 上 @deepseek-ai/dsh 的最新稳定版本;网络失败返回 null(不抛错)。 */
@@ -190,16 +223,16 @@ function installedNodeVersion(): Promise<string | null> {
 
 /**
  * Environment patch for bundled-mode children: force DSH_HOME to the configured
- * dshHome and prepend the portable node dir to PATH so npm/pnpm (spawned by the
- * bundled dsh for `dsh plugin`) resolve to the bundled copies.
+ * dshHome and prepend the portable node dirs to PATH so npm/pnpm (spawned by the
+ * bundled dsh for `dsh plugin`) resolve to the portable copies — the runtimeRoot
+ * copy when explicitly installed, the installer-bundled copy otherwise.
  */
 export function bundledEnv(): NodeJS.ProcessEnv {
   const cfg = getConfig()
-  const dir = nodeDir()
   const oldPath = process.env.PATH ?? ''
   return {
     DSH_HOME: cfg.dshHome,
-    PATH: `${dir}${delimiter}${oldPath}`
+    PATH: [nodeDir(), appNodeDir(), oldPath].join(delimiter)
   }
 }
 

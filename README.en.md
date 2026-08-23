@@ -57,7 +57,7 @@ the flexibility of the plugin ecosystem becomes something every user can reach.<
 
 | File | Description | Size |
 | --- | --- | --- |
-| [Installer exe](https://github.com/poying2018/dsh-Launcher/releases/download/v3.0.4/DSH.Launcher.Setup.3.0.4.exe) | NSIS installer; creates desktop / Start menu shortcuts automatically | ~100 MB |
+| [Installer exe](https://github.com/poying2018/dsh-Launcher/releases/download/v3.0.4/DSH.Launcher.Setup.3.0.4.exe) | NSIS installer; creates desktop / Start menu shortcuts automatically | ~210 MB |
 | [Simple exe](https://github.com/poying2018/dsh-Launcher/releases/download/v2.0.3/DSH.Launcher.Setup.2.0.3.exe) | Minimal version without multi-instance, for users running a single DSH | ~100 MB |
 
 More versions on the [Releases page](https://github.com/poying2018/dsh-Launcher/releases).
